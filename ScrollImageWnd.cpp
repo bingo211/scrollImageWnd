@@ -1,4 +1,4 @@
-// ScrollImageWnd.cpp : ÊµÏÖÎÄ¼ş
+// ScrollImageWnd.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -6,7 +6,7 @@
 #include "ScrollImageWnd.h"
 #include <boost/lexical_cast.hpp>  
 
-//Ä¬ÈÏ²½³¤
+//é»˜è®¤æ­¥é•¿
 #define DEFAULT_WDN_SHIFLT_STEP 10
 
 #define TIMER_INTERVAL_ID 2345
@@ -35,14 +35,14 @@ BEGIN_MESSAGE_MAP(ScrollImageWnd, CStatic)
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
-// ScrollImageWnd ÏûÏ¢´¦Àí³ÌĞò
+// ScrollImageWnd æ¶ˆæ¯å¤„ç†ç¨‹åº
 BOOL ScrollImageWnd::CreateScrollWnd(CRect rcRect, CWnd* pParentWnd, UINT nID)
 {
 	if (!Create(NULL, WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_CENTERIMAGE | SS_CENTER, rcRect, pParentWnd, nID))
 		return FALSE;
 	ModifyStyleEx(0, WS_EX_TRANSPARENT);
 	ShowWindow(TRUE);
-	//³õÊ¼»¯ÏÔÊ¾´°¿ÚÊıÄ¿Îª20
+	//åˆå§‹åŒ–æ˜¾ç¤ºçª—å£æ•°ç›®ä¸º20
 	InitializeImageDisplay(20);
 	return TRUE;
 }
@@ -61,7 +61,7 @@ void ScrollImageWnd::InitializeImageDisplay(int count)
 	}
 	m_nWndCnt = count;
 	m_objScrollThread = new boost::thread(boost::bind(&ScrollImageWnd::ImageListThreadProcess, this));
-	//Æô¶¯¶¨Ê±Æ÷
+	//å¯åŠ¨å®šæ—¶å™¨
 	SetTimer(TIMER_INTERVAL_ID, TIMER_INTERVAL_SPEED,NULL);
 }
 
@@ -107,7 +107,7 @@ void ScrollImageWnd::DestroyDisplayWnd()
 	m_ImageDisplayWndList.clear();
 }
 
-//»ñÈ¡ÏÔÊ¾´°¿ÚµÄ´óĞ¡
+//è·å–æ˜¾ç¤ºçª—å£çš„å¤§å°
 int ScrollImageWnd::GetDisplayWndSize()
 {
 	boost::shared_lock<boost::shared_mutex> readLock(m_imageDisWndMutex);
@@ -116,9 +116,9 @@ int ScrollImageWnd::GetDisplayWndSize()
 
 void ScrollImageWnd::OnDestroy()
 {
-	//¹Ø±Õ¶¨Ê±Æ÷
+	//å…³é—­å®šæ—¶å™¨
 	KillTimer(TIMER_INTERVAL_ID);
-	//¹Ø±ÕÏß³Ì
+	//å…³é—­çº¿ç¨‹
 	m_bIsTerminate = true;
 	if (m_objScrollThread != nullptr)
 	{
@@ -208,7 +208,6 @@ CRect ScrollImageWnd::GetRectByResultType(RESULT_MSG  msg)
 	CRect rcClient;
 	GetClientRect(rcClient);
     int nHeight = rcClient.bottom - rcClient.top;
-	//!FSB 2017.2.12 modify 
 // 	static std::once_flag once_flag;
 // 	std::call_once(once_flag, [&]{
 // 		m_nWndHeight.store(nHeight);
@@ -252,7 +251,7 @@ void ScrollImageWnd::PreSubclassWindow()
 	CStatic::PreSubclassWindow();
 }
 
-//¶¨Ê±Æ÷ÉèÖÃÎª300ºÁÃë
+//å®šæ—¶å™¨è®¾ç½®ä¸º300æ¯«ç§’
 void ScrollImageWnd::OnTimer(UINT_PTR nIDEvent)
 {
 	if (TIMER_INTERVAL_ID == nIDEvent)
@@ -278,7 +277,7 @@ void ScrollImageWnd::OnMessageListImage()
 			ReleaseDisplayWnd((*imageListIter));
 			imageListIter = m_ScrollImageList.erase(imageListIter);
 		}
-		//Á½ĞĞ½øĞĞÏÔÊ¾Ê±Ó¦¸ÃÊ¹ÓÃrightÀ´½øĞĞÅĞ¶Ï£¬Èç¹ûÊ¹ÓÃÒ»ĞĞ½øĞĞÏÔÊ¾Ê±£¬Ó¦¸ÃÊ¹ÓÃleft½øĞĞÅĞ¶Ï
+		//ä¸¤è¡Œè¿›è¡Œæ˜¾ç¤ºæ—¶åº”è¯¥ä½¿ç”¨rightæ¥è¿›è¡Œåˆ¤æ–­ï¼Œå¦‚æœä½¿ç”¨ä¸€è¡Œè¿›è¡Œæ˜¾ç¤ºæ—¶ï¼Œåº”è¯¥ä½¿ç”¨leftè¿›è¡Œåˆ¤æ–­
 		else if (nRecogImageSize == 0 && m_FreeImageList.getSize()==0 && (*--m_ScrollImageList.end())->m_nImageWndRect.left > 0)
 		{
 			return;
@@ -298,7 +297,7 @@ void ScrollImageWnd::OnMessageListImage()
 		}
 	}
 }
-//!FSB 2017.2.11 add
+
 void ScrollImageWnd::OnSize(UINT nType, int cx, int cy)
 {
 	CStatic::OnSize(nType, cx, cy);
@@ -307,7 +306,6 @@ void ScrollImageWnd::OnSize(UINT nType, int cx, int cy)
 	GetClientRect(rcClient);
 	int nWndHeight = rcClient.bottom - rcClient.top;
 	double nWndZoomRatio = (double)nWndHeight / (m_nWndHeight.load()+0.001);
-	//!FSB 2017.2.12 modify 
 	m_nWndHeight.store(nWndHeight);
 	do 
 	{
